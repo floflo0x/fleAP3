@@ -1,0 +1,1189 @@
+<%- include("./includes/head.ejs"); %>
+
+<link rel="stylesheet" href="/add.css">
+
+<body>
+	<header>
+		<%- include("./includes/navbar.ejs", { show: false }); %>
+	</header>
+
+	<div class="loading-spinner" id="loadingSpinner">
+	    <img src="https://i.ibb.co/PTLFqC0/cube.png" alt="Your Logo" class="logoSp">
+	    <div class="spinner"></div>
+	</div>
+
+	<section>
+		<div class="container-fluid border-0 p-0 first_container" style="margin-top: 100px;">
+			<div class="row justify-content-center">
+				<div class="col-12 text-center">
+		          <% if(errorMessage) { %>
+		            <div class="alert alert-danger" role="alert"><%= errorMessage %></div>
+		          <% } %>
+		        </div>
+
+		        <div class="col-2"></div>
+
+		        <div class="col-12 col-sm-8 border-0 p-3">
+		        	<h1>Movie Upload</h1>
+
+		        	<form method="POST" action="/v1<% if(editing) { %>/edit1/<%= sid %><% } else { %>/upload1<% } %>" id="searchForm" onkeydown="return event.key != 'Enter';">
+		        		<div class="row mt-2 mb-1">
+		        			<div class="col-12 col-sm-12">
+	                      		<!-- name -->
+			                    <div class="mb-3">
+			                      <label for="exampleFormControlName" class="form-label">Name</label>
+			                      <input 
+			                      	type="text" 
+			                      	class="form-control" 
+			                      	id="exampleFormControlName" 
+			                      	name="title" 
+			                      	placeholder="e.g., abcd"
+			                      	value="<%= oldInput.title %>"
+			                      >
+			                    </div>
+			                      <!-- description -->
+			                    <div class="mb-3">
+			                      <label for="exampleFormControlTextarea1" class="form-label">Description</label>
+			                      <textarea 
+			                      	class="form-control" name="description" id="exampleFormControlTextarea1" rows="3">
+			                      	<%= oldInput.description %>
+			                      </textarea>
+			                    </div>
+			                      <!-- cast -->
+			                    <div class="mb-3">
+			                      <label for="exampleFormControlTextarea2" class="form-label">Cast</label>
+			                      <textarea 
+			                      	class="form-control" name="cast" id="exampleFormControlTextarea2" rows="3">
+			                      	<%= oldInput.cast %>
+			                      </textarea>
+			                    </div>
+			                      <!-- creator -->
+			                    <div class="mb-3">
+			                      <label for="exampleFormControlCreator" class="form-label">Creator</label>
+			                      <input 
+			                      	type="text" 
+			                      	class="form-control" 
+			                      	name="creator" 
+			                      	id="exampleFormControlCreator" 
+			                      	placeholder="e.g., xyz" 
+			                      	value="<%= oldInput.creator %>"
+			                      >
+			                    </div>
+			                      <!-- age -->
+			                    <div class="mb-3">
+			                      <label for="exampleFormControlAge" class="form-label">Age</label>
+			                        <input 
+			                        	type="number" 
+			                        	class="form-control" 
+			                        	name="age"  
+			                        	id="exampleFormControlAge" 
+			                        	placeholder="e.g., 12" 
+			                        	min="12" 
+			                        	max="50"
+			                        	value="<%= oldInput.age %>"
+			                        >
+			                    </div>
+			                      <!-- release date -->
+			                    <div class="mb-3">
+			                      <label for="exampleFormControlDate" class="form-label">Release Date</label>
+			                      <input 
+			                        type="date" 
+			                        class="form-control" 
+			                        id="exampleFormControlDate" 
+			                        name="release_date"
+			                        value="<%= oldInput.release_date %>" 
+			                      >
+			                    </div>
+			                      <!-- type -->
+			                    <div class="mb-3">
+			                      <label class="form-label">Type</label>
+			                      <select class="form-select" aria-label="Default select example" name="movie_type" >
+			                        <option value="movie" selected>Movie</option>
+			                        <option value="collection">Collection</option>
+			                        <option value="series">Series</option>
+			                      </select>
+			                    </div>
+			                      <!-- genres -->
+			                    <div class="mb-3" id="genres_class"></div>
+			                      <!-- lang -->
+			                    <div class="mb-3">
+					              <% if(langArray.length >= 1) { %>
+					              	<label class="form-label">Language</label>
+					                <select class="form-select" id="language" name="lang">
+					                  <% if (langArray.length > 1) { %>
+					                    <% langArray.forEach(i => { %>
+					                      <option value="<%= i.lang %>"><%= i.name %></option>
+					                    <% }) %>
+					                  <% } else { %>
+					                    <% langArray.forEach(i => { %>
+					                      <option value="<%= i.lang %>" selected><%= i.name %></option>
+					                    <% }) %>
+					                  <% } %>
+					                </select>
+					                <div class="p-1 fw-bold" id="selectedLanguageDisplay" style="display: none;"></div>
+					              <% } %>
+			            		</div>
+			                      <!-- logo -->
+			                    <div class="mb-3" id="logo_div">
+			                      <div style="display: none;">
+			                        <label for="formFile1" class="form-label">Logo Image</label>
+			                        <h4>UPLOADED</h4>
+			                      </div>
+			                      <div>
+			                          <label for="formFile" class="form-label">Logo Image</label>
+			                          <input class="form-control" type="file" id="formFilel" >
+			                          <input type="hidden" name="logo" id="formNameFilel" value="<%= oldInput.logo %>">
+			                        </div>
+			                        <div class="d-flex align-items-center justify-content-between">
+			                          <button type="button" class="btn upload-limage-btn border-0">
+			                            <i class="fa-solid fa-cloud-arrow-up"></i>
+			                          </button>
+			                          	<% if (editing) { %>
+				                          <button type="button" class="btn delete-l-button">
+			                                <i class="fa-solid fa-trash"></i>
+			                              </button>
+			                            <% } %>
+			                          <div id="spinner_subl" class="spinner-border" role="status" style="display: none;">
+			                            <span class="sr-only">Loading...</span>
+			                          </div>
+			                        </div>
+			                    </div>
+			                      <!-- poster image -->
+			                    <div class="mb-3" id="poster_div">
+			                      <div style="display: none;">
+			                        <label for="formFile" class="form-label">Poster Image</label>
+			                        <h4>UPLOADED</h4>
+			                      </div>
+			                      <div>
+			                        <label for="formFile" class="form-label">Poster Image</label>
+			                        <input class="form-control" type="file" id="formFilep" >
+			                        <input type="hidden" name="poster_img" id="formNameFilep" value="<%= oldInput.poster_img %>">
+			                      </div>
+			                        <div class="d-flex align-items-center justify-content-between">
+			                          <button type="button" class="btn upload-pimage-btn border-0">
+			                            <i class="fa-solid fa-cloud-arrow-up"></i>
+			                          </button>
+			                          	<% if (editing) { %>
+				                          <button type="button" class="btn delete-p-button">
+			                                <i class="fa-solid fa-trash"></i>
+			                              </button>
+			                            <% } %>
+			                          <div id="spinner_subp" class="spinner-border" role="status" style="display: none;">
+			                            <span class="sr-only">Loading...</span>
+			                          </div>
+			                        </div>
+			                    </div>
+			                      <!-- background image -->
+			                    <div class="mb-3" id="bg_div">
+			                      <div style="display: none;">
+			                        <label for="formFile" class="form-label">Background Image</label>
+			                        <h4>UPLOADED</h4>
+			                      </div>
+			                      	<div>
+			                          <label for="formFile" class="form-label">Background Image</label>
+			                          <input class="form-control" type="file" id="formFilebg" >
+			                          <input type="hidden" name="bg_img" id="formNameFilebg" value="<%= oldInput.bg_img %>">
+			                        </div>
+			                        <div class="d-flex align-items-center justify-content-between">
+			                          <button type="button" class="btn upload-bgimage-btn border-0">
+			                            <i class="fa-solid fa-cloud-arrow-up"></i>
+			                          </button>
+			                          	<% if (editing) { %>
+				                          <button type="button" class="btn delete-bg-button">
+			                                <i class="fa-solid fa-trash"></i>
+			                              </button>
+			                            <% } %>
+			                          <div id="spinner_subbg" class="spinner-border" role="status" style="display: none;">
+			                            <span class="sr-only">Loading...</span>
+			                          </div>
+			                        </div>
+			                    </div>
+	                    	</div>
+	                    </div>
+
+	                    <div class="row border mb-4">
+			                <div class="col-12 col-sm-6 col-md-8 col-lg-5 border text-sm-center p-0" id="embed-responsive" style="display: none;">
+			                    <div class="embed-responsive embed-responsive-16by9">
+			                      <div id="image" class="uploaded-text">UPLOADED</div>
+			                    </div>
+			                </div>
+			                <div class="col-12 col-sm-6 col-md-8 col-lg-5 video-uploader" id="video-uploader">
+			                    <label class="file-label" for="movieFile" id="fileLabel">
+			                      <i class="fa-solid fa-file-video"></i> Choose Video
+			                    </label>
+			                    <input type="file" id="movieFile" class="file-input" accept="video/*" />
+			                    <input type="hidden" class="border-0" id="episode_Id" value="">
+			                    <input type="hidden" id="fileCode" name="fileCode" class="custom-file-input" value="<%= oldInput.fileCode %>">
+			                    <span id="file_name" name="file_name" class="file-name">No file chosen</span>
+			                </div>
+			                <div class="col-12 col-sm-6 col-md-4 col-lg-5 text-start d-flex justify-content-between align-items-center" style="word-wrap: break-word;">
+			                    <p class="text-break"><%= oldInput.title %></p>
+			                </div>
+			                <div class="col-12 col-sm-12 col-md-12 col-lg-2 d-flex justify-content-between">
+			                    <div id="spinner" class="spinner-border" role="status" style="display: none;">
+			                      <span class="sr-only">Loading...</span>
+			                    </div>
+			                    <button type="button" class="btn upload-button border-0">
+			                      <i class="fa-solid fa-cloud-arrow-up"></i>
+			                    </button>
+			                    <% if (editing) { %>
+				                    <button type="button" class="btn delete-button">
+		                              <i class="fa-solid fa-trash"></i>
+		                            </button>
+		                        <% } %>
+			                    <!-- Subtitle Button -->
+			                    <button type="button" class="btn subtitle-button border-0" data-tvshow-id="">
+			                      <i class="fa-solid fa-closed-captioning"></i>
+			                    </button>
+			                </div>
+
+			                <!-- subtitle section -->
+			                <div class="col-xxl mt-3" id="subtitle_block" style="display: none;">
+			                    <div class= "row">
+			                      <div class="col-12 col-sm-6 col-md-8 col-lg-5 border text-sm-center p-0" id="embed-sub-responsive" style="display: none;">
+			                        <div class="embed-responsive embed-responsive-16by9">
+			                          <div id="image_sub" class="uploaded-text">UPLOADED</div>
+			                        </div>
+			                      </div>
+			                      <div class="col-12 col-sm-6 col-md-8 col-lg-5 video-uploader" id="video-sub-uploader">
+			                        <label class="file-label" for="episode_Sub_File" id="file_Sub_Label">
+			                          <i class="fa-solid fa-file-video"></i> Choose Subtitle File
+			                        </label>
+			                        <input type="file" id="episode_Sub_File" class="file-input" />
+			                        <input type="hidden" class="border-0" id="episode_Sub_Id" value="">
+			                        <input type="hidden" id="file_Sub_Code" name="file_Sub_Code" class="custom-file-input" value="<%= oldInput.file_Sub_Code %>">
+			                        <span id="file_Sub_name" name="file_Sub_name" class="file-name">No file chosen</span>
+			                      </div>
+			                      <div class="col-12 col-sm-6 col-md-4 col-lg-5 text-center" style="word-wrap: break-word;">
+			                        <!-- <p class="text-break"></p> -->
+			                        <input type="hidden" class="border-0" id="episodeSubName" value="null">
+			                        <input type="hidden" value="null" />
+			                      </div>
+			                      <div class="col-12 col-sm-12 col-md-12 col-lg-2 d-flex justify-content-between">
+			                        <div id="spinner_sub" class="spinner-border" role="status" style="display: none;">
+			                          <span class="sr-only">Loading...</span>
+			                        </div>
+			                        <button type="button" class="btn upload-sub-button border-0">
+			                          <i class="fa-solid fa-cloud-arrow-up"></i>
+			                        </button>
+			                        <% if (editing) { %>
+					                    <button type="button" class="btn delete-sub-button">
+			                              <i class="fa-solid fa-trash"></i>
+			                            </button>
+			                        <% } %>
+			                      </div>
+			                    </div>
+			                </div>
+                		</div>
+
+                		<div class="row mb-4">
+                			<div class="col-12 border-0 d-flex justify-content-center align-items-center">
+                				<button class="btn text-light bg-dark" id="subBtn" type="submit" style="display: block;">SUBMIT</button>
+                			</div>
+                		</div>
+		        	</form>
+		        </div>
+
+		        <div class="col-2"></div>
+		    </div>
+		</div>
+	</section>
+
+	<section>
+	    <%- include("./includes/langSelect.ejs"); %>
+	</section>
+
+	<footer></footer>
+
+	<script>
+  		let oi = '<%= JSON.stringify(oldInput) %>';
+  		let Editing = '<%= editing %>';
+  		let genre = '<%= JSON.stringify(genre) %>';
+  		let Gen1 = '<%= JSON.stringify(selGen) %>';
+  		window.addEventListener('load', function () {
+	      // console.log("hii...");
+	      // Get the loading spinner element
+	      const loadingSpinner = document.getElementById('loadingSpinner');
+	        
+	      // Hide the loading spinner
+	      loadingSpinner.style.display = 'none';
+	    });
+    </script>
+
+	<script type="text/javascript">
+		globalThis.document.addEventListener('DOMContentLoaded', () => {
+        	const form = globalThis.document.getElementById('searchForm');
+			const submitButton = globalThis.document.getElementById('subBtn');
+            const spinner = document.getElementById('spinner-border');
+
+            const oldInput = JSON.parse(oi.replace(/&#34;/g, '"'));
+            const editing = Editing;
+
+            const genres = JSON.parse(genre.replace(/&#34;/g, '"'));
+			const gen1 = JSON.parse(Gen1.replace(/&#34;/g, '"'));
+
+            // console.log(oldInput, editing, gen1);
+
+            const genreDiv = document.getElementById('genres_class');
+
+	        if (genres && genres.length >= 1) {
+	          const genreLabel = document.createElement('label'); // Create a label element
+	          genreLabel.className = 'form-label'; // Add the class attribute
+	          genreLabel.textContent = 'Genre';
+
+	          const genreSelect = document.createElement('select'); // Create a select element
+	          genreSelect.className = 'form-select'; // Add the class attribute
+	          genreSelect.multiple = true; // Add the multiple attribute
+	          genreSelect.setAttribute('aria-label', 'Multiple select example'); // Add the aria-label attribute
+	          genreSelect.name = 'genre'; // Add the name attribute
+
+	          genres.forEach(genre => {
+	            const genreOption = document.createElement('option'); // Create an option element
+	            genreOption.textContent = genre.genre_name;
+	            genreOption.value = genre.id;
+
+	            gen1.forEach(i => {
+	                return (
+	                    i == genre.id ? genreOption.selected = true : ''
+	                )
+	            })
+
+	            genreSelect.appendChild(genreOption); // Append the option to the select element
+	          });
+
+	          genreDiv.appendChild(genreLabel);
+          	  genreDiv.appendChild(genreSelect);
+	        }
+
+            const logoDiv = globalThis.document.getElementById('logo_div');
+            const posterDiv = globalThis.document.getElementById('poster_div');
+            const bgDiv = globalThis.document.getElementById('bg_div');
+
+            const vu1 = globalThis.document.getElementById('video-uploader');
+            const er1 = globalThis.document.getElementById('embed-responsive');
+
+            const vsu2 = globalThis.document.getElementById('video-sub-uploader');
+            const esr2 = globalThis.document.getElementById('embed-sub-responsive');
+
+            // console.log(logoDiv, posterDiv, bgDiv);
+
+            function checkDiv(dName) {
+            	const firstDiv = dName.querySelectorAll('div')[0];
+				const secondDiv = dName.querySelectorAll('div')[1];
+				const thirdDiv = dName.querySelectorAll('div')[2];
+
+				const button = thirdDiv.querySelector('i.fa-cloud-arrow-up').parentElement;
+
+				//console.log(thirdDiv, button);
+
+				//console.log(firstDiv, secondDiv);
+				
+				firstDiv.style.display = 'block';
+				secondDiv.style.display = 'none';
+				button.disabled = true;
+            }
+
+            if (oldInput.logo !== '') {
+            	checkDiv(logoDiv);
+            }
+
+            if (oldInput.poster_img !== '') {
+            	checkDiv(posterDiv);
+            }
+
+            if (oldInput.bg_img !== '') {
+            	checkDiv(bgDiv);
+            }
+
+            if (oldInput.fileCode !== '') {
+            	vu1.style.display = 'none';
+            	er1.style.display = 'block';
+            }
+
+            if (oldInput.file_Sub_Code !== '') {
+            	vsu2.style.display = 'none';
+            	esr2.style.display = 'block';
+            }
+
+            // Attach event listener to all buttons with the class "upload-button"
+	        globalThis.document.querySelectorAll('.upload-button').forEach(button => {
+	          button.addEventListener('click', function(e) {
+	            uploadVideo(this);
+	          });
+	        });
+
+			globalThis.document.querySelectorAll('.subtitle-button').forEach(button => {
+	          button.addEventListener('click', function(e) {
+	            const subBlock = globalThis.document.getElementById(`subtitle_block`);
+
+	            // console.log(tvShowId, subBlock);
+
+	            // Toggle the display of the subtitle file input
+	            if (subBlock.style.display === "none" || subBlock.style.display === "") {
+	              subBlock.style.display = "block";
+	            } else {
+	              subBlock.style.display = "none";
+	            }
+	          });
+	        });
+
+	        globalThis.document.querySelectorAll('.upload-sub-button').forEach(button => {
+	          button.addEventListener('click', function(e) {
+	            uploadSubVideo(this);
+	          });
+	        });
+
+	        globalThis.document.querySelectorAll('.upload-limage-btn').forEach(button => {
+	          button.addEventListener('click', function(e) {
+	            uploadLogoImage(this);
+	          });
+	        });
+
+	        globalThis.document.querySelectorAll('.upload-pimage-btn').forEach(button => {
+	          button.addEventListener('click', function(e) {
+	            uploadPosterImage(this);
+	          });
+	        });
+
+	        globalThis.document.querySelectorAll('.upload-bgimage-btn').forEach(button => {
+	          button.addEventListener('click', function(e) {
+	            uploadBgImage(this);
+	          });
+	        });
+
+	        document.addEventListener("change", function (event) {
+	          if (event.target.matches(".file-input")) {
+	            const fileInput = event.target;
+	            const fileNameDisplay = fileInput.nextElementSibling.nextElementSibling.nextElementSibling; // The third sibling is the file-name span
+
+	            // console.log(fileInput, fileNameDisplay);
+
+	            const file = fileInput.files[0];
+	            // console.log(file);
+	            if (file) {
+	              fileNameDisplay.textContent = file.name;
+	            } else {
+	              fileNameDisplay.textContent = "No file chosen";
+	            }
+	          }
+	        });
+
+	        function uploadLogoImage(btn) {
+	          	// console.log("logo....");
+		        submitButton.style.display = 'none';
+		        btn.disabled = true;
+
+		        const formFile1 = globalThis.document.getElementById("formFilel");
+
+		        const file = formFile1.files[0];
+
+		        if (formFile1.files.length === 0) {
+		            alert('Please select a image to upload.');
+		            btn.disabled = false;
+		            submitButton.style.display = 'block';
+		            return;
+		        }
+
+		        else if (file) {
+		        	submitButton.style.display = 'block';
+		            // console.log(file.name);
+		            function isVideoExtension(extension) {
+		              const videoExtensions = [".png", ".jpg", ".jpeg", ".gif"];
+		              return videoExtensions.includes(extension.toLowerCase());
+		            }
+		            const extension = file.name.match(/\.([^\.]+)$/);
+
+		            if (extension) {
+		              const extractedExtension = extension[1].toLowerCase(); // Convert to lowercase for case-insensitive comparison
+		              const isVideo = isVideoExtension("." + extractedExtension); // Add dot prefix
+		              // console.log(isVideo);
+		              if (!isVideo) {
+		                alert('Please select a image to upload.');
+		                btn.disabled = false;
+		                // const fileNameDisplay = fileInput.nextElementSibling.nextElementSibling.nextElementSibling; // The third sibling is the file-name span
+		                formFile1.value = "";
+		                return;
+		              }
+		            } else {
+		              console.log("No extension found");
+		            }
+		        }
+
+		        submitButton.style.display = 'none';
+
+		        const spinner = document.getElementById("spinner_subl");
+		        spinner.style.display = 'block';
+
+		        const formdata = new FormData();
+		        formdata.append("fileToUpload", file);
+
+		        const requestOptions = {
+		            method: "POST",
+		            body: formdata,
+		            redirect: "follow"
+		        };
+
+		        fetch("https://feflix.tech/feflix_api/upload_image.php", requestOptions)
+		            .then((response) => response.json())
+		            .then((result) => {
+		              // console.log(result);
+		              if (result.isSuccess == true) {
+		                spinner.style.display = 'none';
+		                btn.parentElement.style.display = 'none';
+		                globalThis.document.getElementById("formNameFilel").value = result.image;
+		                btn.parentElement.previousElementSibling.style.display = 'none';
+		                btn.parentElement.previousElementSibling.previousElementSibling.style.display = 'block';
+		                btn.parentElement.parentElement.style.marginBottom = '50px';
+		                submitButton.style.display = 'block';
+		              }
+		              else {
+		                alert('Failed to upload.');
+		                btn.disabled = false;
+		                file.value = '';
+		                spinner.style.display = 'none';
+		                return;
+		              }
+		            })
+		            .catch((error) => console.error(error));
+        	}
+
+	        function uploadPosterImage(btn) {
+	          	// console.log("poster....");
+	          	submitButton.style.display = 'none';
+	          	btn.disabled = true;
+
+	          	const formFile1 = globalThis.document.getElementById("formFilep");
+
+	          	const file = formFile1.files[0];
+
+	          	if (formFile1.files.length === 0) {
+	          	  	alert('Please select a image to upload.');
+	          	  	btn.disabled = false;
+	          	  	submitButton.style.display = 'block';
+	          	  	return;
+	          	}
+
+		        else if (file) {
+		        	submitButton.style.display = 'block';
+		            // console.log(file.name);
+		            function isVideoExtension(extension) {
+		              const videoExtensions = [".png", ".jpg", ".jpeg", ".gif"];
+		              return videoExtensions.includes(extension.toLowerCase());
+		            }
+		            const extension = file.name.match(/\.([^\.]+)$/);
+
+		            if (extension) {
+		              const extractedExtension = extension[1].toLowerCase(); // Convert to lowercase for case-insensitive comparison
+		              const isVideo = isVideoExtension("." + extractedExtension); // Add dot prefix
+		              // console.log(isVideo);
+		              if (!isVideo) {
+		                alert('Please select a image to upload.');
+		                btn.disabled = false;
+		                // const fileNameDisplay = fileInput.nextElementSibling.nextElementSibling.nextElementSibling; // The third sibling is the file-name span
+		                formFile1.value = "";
+		                return;
+		              }
+		            } else {
+		              console.log("No extension found");
+		            }
+		        }
+
+		        submitButton.style.display = 'none';
+
+		        const spinner = document.getElementById("spinner_subp");
+		        spinner.style.display = 'block';
+
+		        const formdata = new FormData();
+		        formdata.append("fileToUpload", file);
+
+		        const requestOptions = {
+		            method: "POST",
+		            body: formdata,
+		            redirect: "follow"
+		        };
+
+		        fetch("https://feflix.tech/feflix_api/upload_image.php", requestOptions)
+		            .then((response) => response.json())
+		            .then((result) => {
+		              // console.log(result);
+		              if (result.isSuccess == true) {
+		                spinner.style.display = 'none';
+		                btn.parentElement.style.display = 'none';
+		                globalThis.document.getElementById("formNameFilep").value = result.image;
+		                btn.parentElement.previousElementSibling.style.display = 'none';
+		                btn.parentElement.previousElementSibling.previousElementSibling.style.display = 'block';
+		                submitButton.style.display = 'block';
+		              }
+		              else {
+		                alert('Failed to upload.');
+		                btn.disabled = false;
+		                file.value = '';
+		                spinner.style.display = 'none';
+		                return;
+		              }
+		            })
+		            .catch((error) => console.error(error));
+        	}
+
+	        function uploadBgImage(btn) {
+	          // console.log("bg....");
+	          submitButton.style.display = 'none';
+	          btn.disabled = true;
+
+	          const formFile1 = globalThis.document.getElementById("formFilebg");
+
+	          const file = formFile1.files[0];
+
+	          if (formFile1.files.length === 0) {
+	            alert('Please select a image to upload.');
+	            btn.disabled = false;
+	            submitButton.style.display = 'block';
+	            return;
+	          }
+
+	          else if (file) {
+	          	submitButton.style.display = 'block';
+	            // console.log(file.name);
+	            function isVideoExtension(extension) {
+	              const videoExtensions = [".png", ".jpg", ".jpeg", ".gif"];
+	              return videoExtensions.includes(extension.toLowerCase());
+	            }
+	            const extension = file.name.match(/\.([^\.]+)$/);
+
+	            if (extension) {
+	              const extractedExtension = extension[1].toLowerCase(); // Convert to lowercase for case-insensitive comparison
+	              const isVideo = isVideoExtension("." + extractedExtension); // Add dot prefix
+	              // console.log(isVideo);
+	              if (!isVideo) {
+	                alert('Please select a image to upload.');
+	                btn.disabled = false;
+	                // const fileNameDisplay = fileInput.nextElementSibling.nextElementSibling.nextElementSibling; // The third sibling is the file-name span
+	                formFile1.value = "";
+	                return;
+	              }
+	            } else {
+	              console.log("No extension found");
+	            }
+	          }
+
+	          submitButton.style.display = 'none';
+
+	          const spinner = document.getElementById("spinner_subbg");
+	          spinner.style.display = 'block';
+
+	          const formdata = new FormData();
+	          formdata.append("fileToUpload", file);
+
+	          const requestOptions = {
+	            method: "POST",
+	            body: formdata,
+	            redirect: "follow"
+	          };
+
+	          fetch("https://feflix.tech/feflix_api/upload_image.php", requestOptions)
+	            .then((response) => response.json())
+	            .then((result) => {
+	              // console.log(result);
+	              if (result.isSuccess == true) {
+	                spinner.style.display = 'none';
+	                btn.parentElement.style.display = 'none';
+	                globalThis.document.getElementById("formNameFilebg").value = result.image;
+	                btn.parentElement.previousElementSibling.style.display = 'none';
+	                btn.parentElement.previousElementSibling.previousElementSibling.style.display = 'block';
+	                btn.parentElement.parentElement.style.marginBottom = '50px';
+	                submitButton.style.display = 'block';
+	              }
+	              else {
+	                alert('Failed to upload.');
+	                btn.disabled = false;
+	                file.value = '';
+	                spinner.style.display = 'none';
+	                return;
+	              }
+	            })
+	            .catch((error) => console.error(error));
+	        }
+
+	        function uploadVideo(btn) {
+          		submitButton.style.display = 'none';
+          		btn.disabled = true;
+
+          		// console.log(movieShowId);
+
+          		const videoIframe = document.querySelector("#embed-responsive");
+          		const fileInput = document.querySelector("#movieFile");
+          		const videoUploader = document.querySelector("#video-uploader");
+
+          		// console.log(videoIframe);
+
+          		videoIframe.style.display = "none"; 
+
+          		const file = fileInput.files[0];
+          		// console.log(file);             
+
+		        if (fileInput.files.length === 0) {
+		            alert('Please select a video to upload.');
+		            btn.disabled = false;
+		            submitButton.style.display = 'block';
+		            return;
+		        }
+
+		        else if (file) {
+		        	submitButton.style.display = 'block';
+		            // console.log(file.name);
+		            function isVideoExtension(extension) {
+		              const videoExtensions = [".mp4", ".avi", ".wmv", ".mov", ".mkv", ".flv", ".webm", ".3gp", ".ogv", ".mpeg", ".mpg", ".divx", ".vob"];
+		              return videoExtensions.includes(extension.toLowerCase());
+		            }
+		            const extension = file.name.match(/\.([^\.]+)$/);
+
+		            if (extension) {
+		              const extractedExtension = extension[1].toLowerCase(); // Convert to lowercase for case-insensitive comparison
+		              const isVideo = isVideoExtension("." + extractedExtension); // Add dot prefix
+		              // console.log(isVideo);
+		              if (!isVideo) {
+		                alert('Please select a video to upload.');
+		                btn.disabled = false;
+		                const fileNameDisplay = fileInput.nextElementSibling.nextElementSibling.nextElementSibling; // The third sibling is the file-name span
+		                fileNameDisplay.textContent = "No file chosen";
+		                return;
+		              }
+		            } else {
+		              console.log("No extension found");
+		            }
+		        }
+
+		        submitButton.style.display = 'none';
+
+		        const fCode = document.getElementById("fileCode");
+
+		        const spinner = document.getElementById("spinner");
+		        spinner.style.display = 'block';
+
+		        const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+
+		        const baseUri = 'https://oneupload.to/';
+
+		        const formdata = new FormData();
+		        formdata.append("key", "617ujm5brrei3rqdhdm");
+		        formdata.append("file", file);
+
+		        const requestOptions = {
+		            method: 'POST',
+		            body: formdata,
+		            redirect: 'follow'
+		        };
+
+		        fetch(`${proxyUrl}https://s1.oneupload.to/upload/04`, requestOptions)
+		            .then(response => response.json())
+		            .then(async (result) => {
+		              // console.log(result);
+
+		              let status = await result.status;
+		              // console.log(status);
+
+		              if(status == '200') {
+		                const filecode = await result.files[0].filecode;
+		                // console.log(filecode);
+
+		                fCode.value = filecode;
+
+		                spinner.style.display = 'none';
+		                const requestOptions1 = {
+		                  method: 'GET',
+		                  redirect: 'follow'
+		                };
+
+		                fetch(`${proxyUrl}${baseUri}api/file/direct_link?key=617ujm5brrei3rqdhdm&file_code=${filecode}`, requestOptions1)
+		                  .then(response => response.json())
+		                  .then(async (result) => {
+		                    // console.log(result);
+
+		                    status = await result.status;
+		                    // console.log(status);
+
+		                    if(status == '200') {
+		                      // const url = await result.result.versions[0].url;
+		                      // console.log(url);
+
+		                      if(filecode) {
+		                        videoUploader.style.display = 'none';
+		                        videoIframe.style.display = "block";
+		                        // Get a reference to the <iframe> element inside the <div>
+
+		                        spinner.style.display = 'none';
+
+		                        // console.log(lang);
+		                        submitButton.style.display = 'block';
+		                        // console.log(btn);
+		                        // btn.disabled = true;
+		                      }
+
+		                      else {
+		                        alert(`Unable to upload ${file.name}.`);
+		                        const fileNameDisplay = fileInput.nextElementSibling.nextElementSibling.nextElementSibling; // The third sibling is the file-name span
+		                        fileNameDisplay.textContent = "No file chosen";
+		                        submitButton.style.display = 'none';
+		                        spinner.style.display = 'none';
+		                        btn.disabled = false;
+		                      }
+		                    }
+
+		                    else {
+		                      alert(`Unable to upload ${file.name}.`);
+		                      const fileNameDisplay = fileInput.nextElementSibling.nextElementSibling.nextElementSibling; // The third sibling is the file-name span
+		                      fileNameDisplay.textContent = "No file chosen";
+		                      btn.disabled = false;
+		                      return;                 
+		                    }
+		                  })
+		                  .catch(error => {
+		                    // console.log('error', error);
+		                    btn.disabled = false;
+		                    spinner.style.display = 'none';
+		                  });
+		              }
+
+		              else {
+		                alert(`Unable to upload ${file.name}.`);
+		                const fileNameDisplay = fileInput.nextElementSibling.nextElementSibling.nextElementSibling; // The third sibling is the file-name span
+		                fileNameDisplay.textContent = "No file chosen";
+		                btn.disabled = false;
+		                return;                 
+		              }
+		            })
+		            .catch(error => {
+		              // console.log('error', error);
+		              btn.disabled = false;
+		              spinner.style.display = 'none';
+		            });
+        	}
+
+	        function uploadSubVideo(btn) {
+	          	// console.log("hii sub1");
+	          	submitButton.style.display = 'none';
+	          	btn.disabled = true;
+
+	          	// console.log(tvShowId);
+
+	          	const videoIframe = document.querySelector("#embed-sub-responsive");
+	          	const fileInput = document.querySelector("#episode_Sub_File");
+	          	const videoUploader = document.querySelector("#video-sub-uploader");
+
+		        // console.log(videoIframe, fileInput, videoUploader);
+
+		        videoIframe.style.display = "none"; 
+		        const file = fileInput.files[0];
+		        // console.log(file);             
+
+		        if (fileInput.files.length === 0) {
+		            alert('Please select a file to upload.');
+		            btn.disabled = false;
+		            submitButton.style.display = 'block';
+		            return;
+		        }
+
+		        else if (file) {
+		        	submitButton.style.display = 'block';
+		            // console.log(file.name);
+		            function isSubtitleExtension(extension) {
+		              const subtitleExtensions = [".srt", ".sub", ".vtt"];
+		              return subtitleExtensions.includes(extension.toLowerCase());
+		            }
+		            const extension = file.name.match(/\.([^\.]+)$/);
+
+		            if (extension) {
+		              const extractedExtension = extension[1].toLowerCase(); // Convert to lowercase for case-insensitive comparison
+		              const isSubtitle = isSubtitleExtension("." + extractedExtension); // Add dot prefix
+		              // console.log(isVideo);
+		              if (!isSubtitle) {
+		                alert('Please select a file to upload.');
+		                btn.disabled = false;
+		                const fileNameDisplay = fileInput.nextElementSibling.nextElementSibling.nextElementSibling; // The third sibling is the file-name span
+		                // console.log(fileNameDisplay);
+		                fileNameDisplay.textContent = "No file chosen";
+		                return;
+		              }
+		            } else {
+		              console.log("No extension found");
+		            }
+		        }
+
+		        submitButton.style.display = 'none';
+
+          		const fCode = document.getElementById("file_Sub_Code");
+
+          		const spinner = document.getElementById("spinner_sub");
+          		spinner.style.display = 'block';
+
+          		const formdata = new FormData();
+          		formdata.append("subtitle", file);
+
+		        const requestOptions = {
+		            method: 'POST',
+		            body: formdata,
+		            redirect: 'follow'
+		        };
+
+		        fetch("https://feflix.tech/feflix_api/upload_subtitle.php",requestOptions)
+		            .then(response => response.json())
+		            .then(async (result) => {
+		              	// console.log(result);
+
+		              	let status = result.isSuccess;
+		              	// console.log(status);
+
+		              	if(status == true) {
+			                const filecode = result.subFile;
+			                // console.log(filecode);
+
+			                fCode.value = filecode;
+
+			                spinner.style.display = 'none';
+
+			                if(filecode) {
+			                  	videoUploader.style.display = 'none';
+			                  	videoIframe.style.display = "block";
+			                  	// Get a reference to the <iframe> element inside the <div>
+
+			                  	spinner.style.display = 'none';
+			                    submitButton.style.display = 'block';
+			                                        
+
+			                  	// console.log(btn);
+			                  	btn.disabled = true;
+			                }
+
+			                else {
+			                  	alert(`Unable to upload 4 ${file.name}.`);
+			                  	const fileNameDisplay = fileInput.nextElementSibling.nextElementSibling.nextElementSibling; // The third sibling is the file-name span
+			                  	fileNameDisplay.textContent = "No file chosen";
+			                  	submitButton.style.display = 'none';
+			                  	spinner.style.display = 'none';
+			                  	btn.disabled = false;
+			                  	return;
+			                }
+		              	}
+
+		             	else {
+		                	alert(`Unable to upload ${file.name}.`);
+		                	const fileNameDisplay = fileInput.nextElementSibling.nextElementSibling.nextElementSibling; // The third sibling is the file-name span
+		                	fileNameDisplay.textContent = "No file chosen";
+		                	submitButton.style.display = 'none';
+		                	btn.disabled = false;
+		                	return;                 
+		              	}
+		            })
+		            .catch(error => {
+		              // console.log('error', error);
+		              btn.disabled = false;
+		              spinner.style.display = 'none';
+		            });
+        	}
+
+        	if (editing) {
+        		const descriptionContainer1 = document.getElementById('exampleFormControlTextarea1');
+
+        		const descriptionContainer2 = document.getElementById('exampleFormControlTextarea2');
+
+        		const descriptionLines1 = descriptionContainer1.textContent.trim('');
+
+        		const descriptionLines2 = descriptionContainer2.textContent.trim('');
+
+				// console.log(descriptionLines1);
+
+				descriptionContainer1.textContent = descriptionLines1;
+
+				descriptionContainer2.textContent = descriptionLines2;
+
+        		globalThis.document.querySelectorAll('.delete-l-button').forEach(button => {
+		          button.addEventListener('click', function(e) {
+		            deleteLogoImage(this);
+		          });
+		        })
+
+		        globalThis.document.querySelectorAll('.delete-p-button').forEach(button => {
+		          button.addEventListener('click', function(e) {
+		            deletePosterImage(this);
+		          });
+		        })
+
+		        globalThis.document.querySelectorAll('.delete-bg-button').forEach(button => {
+		          button.addEventListener('click', function(e) {
+		            deleteBgImage(this);
+		          });
+		        })
+
+		        globalThis.document.querySelectorAll('.delete-sub-button').forEach(button => {
+		          button.addEventListener('click', function(e) {
+		            deleteSubVideo(this);
+		          });
+		        })
+
+		        globalThis.document.querySelectorAll('.delete-button').forEach(button => {
+		          button.addEventListener('click', function(e) {
+		            deleteVideo(this);
+		          });
+		        });
+
+		        function deleteLogoImage(btn) {
+		          btn.disabled = true;
+		          // console.log(btn, btn.previousElementSibling);
+		          btn.previousElementSibling.style.display = 'block';
+		          btn.previousElementSibling.disabled = false;
+		          btn.parentElement.previousElementSibling.style.display = 'block';
+		          btn.parentElement.previousElementSibling.previousElementSibling.style.display = 'none';
+		          globalThis.document.getElementById("formNameFilel").value = '';
+		        }
+
+		        function deletePosterImage(btn) {
+		          btn.disabled = true;
+		          // console.log(btn.previousElementSibling);
+		          btn.previousElementSibling.style.display = 'block';
+		          btn.previousElementSibling.disabled = false;
+		          btn.parentElement.previousElementSibling.style.display = 'block';
+		          btn.parentElement.previousElementSibling.previousElementSibling.style.display = 'none';
+		          globalThis.document.getElementById("formNameFilep").value = '';
+		        }
+
+		        function deleteBgImage(btn) {
+		          btn.disabled = true;
+		          // console.log(btn.previousElementSibling);
+		          btn.previousElementSibling.style.display = 'block';
+		          btn.previousElementSibling.disabled = false;
+		          btn.parentElement.previousElementSibling.style.display = 'block';
+		          btn.parentElement.previousElementSibling.previousElementSibling.style.display = 'none';
+		          globalThis.document.getElementById("formNameFilebg").value = '';
+		        }
+
+		        function deleteSubVideo(btn) {
+		          try {
+		            // console.log(btn);
+		            const videoIframe = document.querySelector("#embed-sub-responsive");
+		            const uploadButton = btn.previousElementSibling;
+		            const videoUploader = document.querySelector("#video-sub-uploader");
+
+		            const iframeElement = document.getElementById("image_sub");
+		            const iUrl = iframeElement.textContent;
+
+		            // console.log(iframeElement, iUrl);
+
+		            if (iUrl === 'UPLOADED') {
+		              const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+
+		              const baseUri = 'https://oneupload.to/';
+
+		              const fCode = document.getElementById("file_Sub_Code").value;
+
+		              // console.log(fCode, fCode.value);
+
+		              videoIframe.style.display = 'none';
+		              videoUploader.style.display = 'block';
+
+		              document.getElementById("file_Sub_Code").value = '';
+
+		              // console.log(uploadButton);
+		              uploadButton.disabled = false;
+
+		              const fileName = document.getElementById("file_Sub_name");
+		              fileName.textContent = 'No file chosen';
+
+		              submitButton.style.display = 'block';
+		            }
+		            else {
+		              // uploadButton.disabled = true;
+		              // btn.disabled = true;
+		              // submitButton.style.display = 'none';
+		              videoUploader.style.display = 'block';
+		              videoIframe.style.display = 'none';
+		            }
+		          }
+
+		          catch (error) {
+		            // Handle any errors that occur during data retrieval or video deletion
+		            console.error('Error:', error.message);
+		          }
+		        }
+
+		        function deleteVideo(btn) {
+		          try {
+		            // console.log(btn);
+		            // console.log(btn.parentElement.previousElementSibling.previousElementSibling);
+
+		            const videoIframe = document.querySelector("#embed-responsive");
+		            const uploadButton = btn.previousElementSibling;
+		            const videoUploader = document.querySelector("#video-uploader");
+
+		            const iframeElement = document.getElementById("image");
+		            const iUrl = iframeElement.textContent;
+
+		            // console.log(btn.parentElement.nextElementSibling);
+
+		            // console.log(iframeElement, iUrl);
+
+		            const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+
+		            const baseUri = 'https://oneupload.to/';
+
+		            if (iUrl === 'UPLOADED') {
+		              const fCode = document.getElementById("fileCode").value;
+
+		              // console.log(fCode);
+
+		              const requestOptions = {
+		                method: 'GET',
+		                redirect: 'follow'
+		              };
+
+		              fetch(`${proxyUrl}${baseUri}api/file/delete?key=617ujm5brrei3rqdhdm&file_code=${fCode}`, requestOptions)
+		                .then(response => response.json())
+		                .then(async (result) => {
+		                  // console.log(result);
+
+		                  const status = await result.status;
+
+		                  if (status == '200') {
+		                    videoIframe.style.display = 'none';
+		                    videoUploader.style.display = 'block';
+
+		                    document.getElementById("fileCode").value = '';
+
+		                    // console.log(uploadButton);
+		                    uploadButton.disabled = false;
+
+		                    const fileName = document.getElementById("file_name");
+		                    fileName.textContent = 'No file chosen';
+
+		                    submitButton.style.display = 'block';
+		                  }
+
+		                  else {
+		                    alert(`Unable to delete ${file.name}.`);
+		                    videoUploader.style.display = 'none';
+		                    videoIframe.style.display = 'block';
+		                  }
+		                })
+		                .catch(error => console.log('error', error));
+		            }
+
+		            else {
+		              // uploadButton.disabled = true;
+		              // btn.disabled = true;
+		              // submitButton.style.display = 'none';
+		              videoUploader.style.display = 'block';
+		              videoIframe.style.display = 'none';
+		            }
+		          }
+
+		          catch (error) {
+		            // Handle any errors that occur during data retrieval or video deletion
+		            console.error('Error:', error.message);
+		          }
+		        }
+        	}
+		})
+	</script>
+
+	<%- include("./includes/end.ejs"); %>
+
+</body>

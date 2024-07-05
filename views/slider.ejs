@@ -1,0 +1,192 @@
+<%- include("./includes/head.ejs"); %>
+
+<link rel="stylesheet" href="/style.css">
+
+<body>
+	<header>
+		<%- include("./includes/navbar.ejs", { show: false }); %>
+	</header>
+
+	<div class="loading-spinner" id="loadingSpinner">
+	    <img src="https://i.ibb.co/PTLFqC0/cube.png" alt="Your Logo" class="logoSp">
+	    <div class="spinner"></div>
+	</div>
+
+	<section>
+		<div class="container-fluid" style="margin-top: 80px;">
+			<div class="row justify-content-center">
+				<div class="col-12 text-center">
+		          <% if(errorMessage) { %>
+		            <div class="alert alert-danger mb-2" role="alert"><%= errorMessage %></div>
+		          <% } %>
+		        </div>
+
+				<div class="col-xxl mb-3">
+					<button type="button" class="btn btn-warning" id="moreBtn">Add More</button>
+				</div>
+
+				<div class="col-xxl" id="firstContainer">
+					<% if (data.length >= 1) { %>
+						<% data.forEach((i, index) => { %>
+							<div class="row border mb-5" style="margin-left: 16px;">
+								<div class="col-3 d-flex justify-content-center align-items-center">
+									<h3>Slider <%= index+1 %></h3>
+								</div>
+								<div class="col-6 d-flex justify-content-start align-items-center border-0">
+									<div class="d-flex flex-row justify-content-between">
+										<div>
+											<img 
+												src="<%= i.poster_image !== '' ? `https://feflix.tech/feflix_api/uploads/${i.poster_image}` : '' %>" 
+												class="img-fluid" alt="..." width="200" height="auto" style="object-fit: cover;">
+										</div>
+										<div class="d-flex flex-column justify-content-center ms-3">
+											<h5 class="card-title"><%= i.name %></h5>
+									    	<p class="card-text"><%= i.description %></p>
+										</div>
+									</div>
+								</div>
+								<div class="col-3 d-flex justify-content-center align-items-center">
+									<div class="d-flex flex-column" style="width: 100px;">
+										<form action="/v1/editSlider/<%= i.id %>" method="GET">
+											<button type="submit" class="btn edit_btn">
+												<i class="fa-solid fa-pen-nib" style="color: #16d03b;"></i>
+											</button>
+										</form>
+									</div>
+
+									<form action="/v1/delete/<%= i.id %>" method="POST">
+										<input type="hidden" name="dd" value="<%= i.id %>">
+										<button type="submit" class="btn delete-btn" data-lshow-id="<%= i.id %>">
+			                                <i class="fa-solid fa-trash" style="color: #f50000;"></i>
+			                            </button>
+			                        </form>
+								</div>
+							</div>
+						<% }) %>
+					<% } %>
+				</div>
+
+				<div class="col-xxl d-flex justify-content-evenly align-items-center flex-wrap" id="fourthContainer"></div>
+
+				<div class="col-xxl d-flex justify-content-evenly align-items-center flex-wrap" id="secondContainer" style="visibility: hidden; height: 0;">
+					<% if (vInfo.length >= 1) { %>
+						<% vInfo.forEach(i => { %>
+							<div class="card mb-2" style="width: 18rem;">
+							  <img src="<%= i.poster_image !== '' ? `https://feflix.tech/feflix_api/uploads/${i.poster_image}` : '' %>" class="card-img-top" alt="...">
+							  <div class="card-body">
+							    <h5 class="card-title"><%= i.name %></h5>
+							    <p class="card-text"><%= i.description %></p>
+							    <a href="/v1/updateS/<%= i.id %>" class="btn btn-primary">Add</a>
+							  </div>
+							</div>
+						<% }) %>
+					<% } %>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<section>
+	    <%- include("./includes/langSelect.ejs"); %>
+	</section>
+
+	<footer></footer>
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/2.0.4/js.cookie.min.js" integrity="sha512-Nonc2AqL1+VEN+97F3n4YxucBOAL5BgqNwEVc2uUjdKOWAmzwj5ChdJQvN2KldAxkCxE4OenuJ/RL18bWxGGzA==" crossorigin="anonymous" referrerpolicy="no-referrer">
+  	</script>
+
+	<script type="text/javascript">
+		globalThis.document.addEventListener('DOMContentLoaded', () => {
+			const moreBtn = globalThis.document.getElementById("moreBtn");
+			const firstCont = globalThis.document.getElementById("firstContainer");
+			const secondCont = globalThis.document.getElementById("secondContainer");
+			const fourthCont = globalThis.document.getElementById("fourthContainer");
+			const editBtn = globalThis.document.querySelectorAll(".edit_btn");
+	        const form = globalThis.document.getElementById('sForm');
+
+	        Cookies.set('name', 'value', {
+		        sameSite: 'none',
+		        secure: true
+		    });
+
+			moreBtn.addEventListener("click", () => {
+				if (secondCont.style.visibility == 'visible') {
+					secondCont.style.visibility = 'hidden';
+					secondCont.style.height = '0px';
+					firstCont.style.display = 'block';
+				}
+				else {
+					secondCont.style.visibility = 'visible';
+					secondCont.style.height = 'auto';
+					firstCont.style.display = 'none';
+				}
+			})
+
+			const submitButton = document.querySelector('button[type="submit"]');
+
+			submitButton.addEventListener('click', function(event) {
+			  event.preventDefault(); // Prevent the default form submission
+
+			  // Get the current page location
+			  // const currentPage = window.location.pathname;
+
+			  // Update the action attribute of the form
+			  form.action = '';
+			  form.method = '';
+
+			  const sInput = form.querySelector('input[name="q"]').value;
+
+			  // console.log(sInput);
+
+			  const formdata = new FormData();
+				formdata.append("s", sInput);
+
+				const requestOptions = {
+				  method: "POST",
+				  body: formdata,
+				  redirect: "follow"
+				};
+
+				fetch(`https://feflix.tech/feflix_api/search/searchVideo.php`, requestOptions)
+				  .then((response) => response.json())
+				  .then((result) => {
+				  	// console.log(result);
+
+				  	let x = '';
+
+				  	result.forEach(i => {
+				  		x += `
+				  			<div class="card mb-3" style="width: 18rem;">
+							  <img src="https://feflix.tech/feflix_api/uploads/${i.poster_image}" class="card-img-top" alt="...">
+							  <div class="card-body">
+							    <h5 class="card-title">${i.name}</h5>
+							    <p class="card-text">${i.description}</p>
+							    <div class="d-flex justify-content-evenly align-items-center">
+									<a href="/v1/updateS/${i.id}" class="btn btn-primary">Add</a>
+									<button type="button" class="btn btn-secondary pe-0 ps-0" onclick="copyToClipboard(${i.id})">${i.id}</button>
+								</div>
+							  </div>
+							</div>
+				  		`
+				  	})
+
+
+				  	fourthCont.innerHTML = x;
+				  })
+				  .catch((error) => console.error(error));
+			});
+		})
+
+		window.addEventListener('load', function () {
+	      // console.log("hii...");
+	      // Get the loading spinner element
+	      const loadingSpinner = document.getElementById('loadingSpinner');
+	        
+	      // Hide the loading spinner
+	      loadingSpinner.style.display = 'none';
+	    });
+	</script>
+
+<%- include("./includes/end.ejs"); %>
+
+</body>

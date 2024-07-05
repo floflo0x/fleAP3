@@ -1,0 +1,143 @@
+<%- include("./includes/head.ejs"); %>
+
+<link rel="stylesheet" href="/add.css">
+
+<body>
+	<header>
+		<%- include("./includes/navbar.ejs", { show: false }); %>
+	</header>
+
+	<section>
+		<div class="container-fluid border-0 p-0 first_container" style="margin-top: 100px;">
+			<div class="row justify-content-center">
+				<div class="col-12 text-center">
+		          <% if(errorMessage) { %>
+		            <div class="alert alert-danger" role="alert"><%= errorMessage %></div>
+		          <% } %>
+		        </div>
+
+      			<div class="col-2"></div>
+
+		        <div class="col-12 col-sm-8 p-3">
+        			<h1>Movie Search</h1>
+
+			        <form method="POST" action="/v1<% if(editing) { %>/edit/<%= sid %><% } else { %>/upload<% } %>" id="searchForm" onkeydown="return event.key != 'Enter';">
+			          <div class="col-12 d-flex">
+			            <div class="mb-1 input-container col-8">
+			              <input type="text" class="form-control" id="searchInput" name="selectedMovieName" placeholder="Search...">
+			              <button type="button" id="clearButton" class="clear-button">x</button>
+			            </div>
+
+			            <div class="col-1"></div>
+
+			            <div class="col-3">
+			              <% if(langArray.length >= 1) { %>
+			                <select class="form-select" id="language" name="lang">
+			                  <% if (langArray.length > 1) { %>
+			                    <option value="">Select Lang</option>
+			                    <% langArray.forEach(i => { %>
+			                      <option value="<%= i.lang %>"><%= i.name %></option>
+			                    <% }) %>
+			                  <% } else { %>
+			                    <% langArray.forEach(i => { %>
+			                      <option value="<%= i.lang %>" selected><%= i.name %></option>
+			                    <% }) %>
+			                  <% } %>
+			                </select>
+			                <div class="p-1 fw-bold" id="selectedLanguageDisplay" style="display: none;"></div>
+			              <% } %>
+			            </div>
+
+			          </div>
+
+			          <input type="hidden" id="selectedMovieId" name="selectedMovieId">
+			          <input type="hidden" id="selectedMediaType" name="selectedMediaType">
+
+			          <ul id="searchResults" class="list-group">
+			          </ul>
+			          <ul id="seasons"></ul>
+
+			          <div class="row">
+			            <!-- <div class="col-2"></div> -->
+
+			            <div class="col-12 col-sm-12">
+			              <div id="searchTypeContainer" style="display: none; margin-top: 10px;">
+			                <button type="button" id="tvButton" class="get-seasons-button">Get Seasons</button>
+			              </div>
+			            </div>
+
+			            <!-- <div class="col-2"></div> -->
+			          </div>
+
+			          <div class="row">
+			            <!-- <div class="col-2"></div> -->
+
+			            <div class="col-12 col-sm-12">
+			              <div id="searchMovieContainer" style="display: none; margin-top: 10px;">
+			                <button type="button" id="movieButton" class="get-seasons-button">Get Movies</button>
+			              </div>
+			            </div>
+
+			            <!-- <div class="col-2"></div> -->
+			          </div>
+
+			          <div class="row">
+
+			            <div class="col-12 p-3">
+			              <ul id="episodeList">
+			                <!-- This is where the episodes will be listed -->
+			              </ul>
+			            </div>
+
+			          </div>
+
+			          <div class="row">
+			            <div class="col"></div>
+
+			            <div class="col">
+			                <button class="btn text-light bg-dark" id="subBtn" type="submit" style="display: none;">submit</button>
+			              </form>
+			            </div>
+
+			            <div class="col"></div>
+			          </div>
+			        </form>
+
+      			</div>
+
+      			<div class="col-2"></div>
+		    </div>
+		</div>
+	</section>
+
+	<section>
+	    <%- include("./includes/langSelect.ejs"); %>
+	</section>
+
+	<footer></footer>
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/2.0.4/js.cookie.min.js" integrity="sha512-Nonc2AqL1+VEN+97F3n4YxucBOAL5BgqNwEVc2uUjdKOWAmzwj5ChdJQvN2KldAxkCxE4OenuJ/RL18bWxGGzA==" crossorigin="anonymous" referrerpolicy="no-referrer">
+  	</script>
+
+  	<script>
+  		let genre = '<%= JSON.stringify(genre) %>';
+    </script>
+
+  	<script src="/script3.js"></script>
+
+  	<script>
+	    let dataArray = '<%= JSON.stringify(dataArray) %>';
+	    let season = '<%= season %>';
+	    let sid = '<%= sid %>';
+	    let title = '<%= title %>';
+	    let Type = '<%= type %>';
+	    let Lang = '<%= JSON.stringify(langArray) %>';
+	    let Editing = '<%= editing %>';
+	    let Gen1 = '<%= JSON.stringify(selGen) %>';
+    </script>
+
+  	<script src="/script4.js"></script>
+
+<%- include("./includes/end.ejs"); %>
+
+</body>

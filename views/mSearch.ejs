@@ -1,0 +1,70 @@
+<%- include("./includes/head.ejs"); %>
+
+<link rel="stylesheet" href="/style.css">
+
+<body>
+	<header>
+		<%- include("./includes/navbar.ejs", { show: false }); %>
+	</header>
+
+	<div class="loading-spinner" id="loadingSpinner">
+	    <img src="https://i.ibb.co/PTLFqC0/cube.png" alt="Your Logo" class="logoSp">
+	    <div class="spinner"></div>
+	</div>
+
+	<section>
+		<div class="container-fluid" style="margin-top: 100px;">
+			<div class="row">
+				<div class="col-2"></div>
+
+				<div class="col-8">
+					<form action="/v1/msearch/<%= mid %>" method="GET" class="d-flex" role="search">
+				        <input class="form-control" type="search" placeholder="Search" aria-label="Search" name="q">
+				        <button class="btn btn-outline-success" type="submit">Search</button>
+				    </form>
+				</div>
+
+				<div class="col-2"></div>
+
+				<div class="col-12 col-md-12 p-4 border-0 d-flex align-items-center flex-wrap">
+		        	<% if (vidData.length >=1) { %>
+		        		<% vidData.forEach(i => { %>
+		        			<div class="card me-4 mb-5" style="width: 18rem;">
+							  <img src="<%= i.poster_image !== '' ? `https://feflix.tech/feflix_api/uploads/${i.poster_image}` : '' %>" class="card-img-top" alt="...">
+							  <div class="card-body">
+							    <h5 class="card-title"><%= i.name %></h5>
+							    <p class="card-text"><%= i.description %></p>
+							    <form action="/v1/slider" method="POST">
+							    	<input type="hidden" name="prevID" value="<%= mid %>" />
+							    	<input type="hidden" name="newID" value="<%= i.id %>" />
+							    	<button type="submit" class="btn btn-primary">Replace</button>
+							    </form>
+							  </div>
+							</div>
+		        		<% }) %>
+		        	<% } %>
+		        </div>
+			</div>
+		</div>
+	</section>
+
+	<section>
+	    <%- include("./includes/langSelect.ejs"); %>
+	</section>
+
+	<footer></footer>
+
+	<script>
+		window.addEventListener('load', function () {
+	      // console.log("hii...");
+	      // Get the loading spinner element
+	      const loadingSpinner = document.getElementById('loadingSpinner');
+	        
+	      // Hide the loading spinner
+	      loadingSpinner.style.display = 'none';
+	    });
+	</script>
+
+	<%- include("./includes/end.ejs"); %>
+
+</body>

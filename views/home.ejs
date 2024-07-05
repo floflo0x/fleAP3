@@ -1,0 +1,94 @@
+<%- include("./includes/head.ejs"); %>
+
+<link rel="stylesheet" href="/home.css">
+
+<body>
+	<header>
+		<%- include("./includes/navbar.ejs", { show: true }); %>
+	</header>
+
+	<div class="loading-spinner" id="loadingSpinner">
+	    <img src="https://i.ibb.co/PTLFqC0/cube.png" alt="Your Logo" class="logoSp">
+	    <div class="spinner"></div>
+	</div>
+
+	<section>
+		<div class="container-fluid border-0 p-0 first_container" style="margin-top: 100px;">
+			<div class="row justify-content-center">
+		        <div class="col-12 col-md-12 mt-4 mb-4 border-0 text-center">
+		        	<h1>HOME</h1>
+		        </div>
+		        <div class="col-12 col-md-12 p-4 border-0 d-flex align-items-center flex-wrap">
+		        	<% if (vidData.length >=1) { %>
+		        		<% vidData.forEach(i => { %>
+		        			<div class="card me-4 mb-5" style="width: 18rem;">
+							  <img src="<%= i.poster_image !== '' ? `https://feflix.tech/feflix_api/uploads/${i.poster_image}` : '' %>" class="card-img-top" alt="...">
+							  <div class="card-body">
+							    <h5 class="card-title"><%= i.name %></h5>
+							    <p class="card-text"><%= i.description %></p>
+							    <div class="d-flex align-items-center justify-content-between">
+								    <a href="/v1/edit/<%= i.id %>" class="btn btn-primary">EDIT</a>
+								    <form action="/v1/delete" method="POST">
+								    	<input type="hidden" name="id" value="<%= i.id %>" />
+									    <button type="submit" class="btn border-0">
+									    	<i class="fa-solid fa-trash" style="color: #ff0000;"></i>
+									    </button>
+									</form>
+								</div>
+							  </div>
+							</div>
+		        		<% }) %>
+		        	<% } %>
+		        </div>
+		    </div>
+		</div>
+	</section>
+
+	<section>
+		<div class="container-fluid">
+			<div class="row justify-content-center">
+				<div class="col-2"></div>
+				<div class="col-8">
+					<nav class="d-flex justify-content-center align-items-center" aria-label="Page navigation example">
+					  <ul class="pagination">
+					    <li class="page-item">
+					      <a class="page-link" href="#" aria-label="Previous">
+					        <span aria-hidden="true">&laquo;</span>
+					      </a>
+					    </li>
+					    <li class="page-item"><a class="page-link" href="#">1</a></li>
+					    <li class="page-item"><a class="page-link" href="#">2</a></li>
+					    <li class="page-item"><a class="page-link" href="#">3</a></li>
+					    <li class="page-item">
+					      <a class="page-link" href="#" aria-label="Next">
+					        <span aria-hidden="true">&raquo;</span>
+					      </a>
+					    </li>
+					  </ul>
+					</nav>
+				</div>
+				<div class="col-2"></div>
+			</div>
+		</div>
+	</section>
+
+	<section>
+	    <%- include("./includes/langSelect.ejs"); %>
+	</section>
+
+	<footer></footer>
+
+	<script>
+		window.addEventListener('load', function () {
+	      // console.log("hii...");
+	      // Get the loading spinner element
+	      const loadingSpinner = document.getElementById('loadingSpinner');
+	        
+	      // Hide the loading spinner
+	      loadingSpinner.style.display = 'none';
+	    });
+	</script>
+
+<%- include("./includes/end.ejs"); %>
+
+</body>
